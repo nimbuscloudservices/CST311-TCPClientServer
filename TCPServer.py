@@ -3,11 +3,13 @@ import os
 from _thread import *
 
 ServerSocket = socket.socket()
-serverName = '10.0.0.1'
+serverName = '10.0.0.3'
 serverPort = 12000
+serverPort2 = 12001
 ThreadCount = 0
 try:
     ServerSocket.bind((serverName, serverPort))
+    ServerSocket.bind((serverName, serverPort2))
 except socket.error as e:
     print(str(e))
 
@@ -19,7 +21,7 @@ def threaded_client(connection):
     connection.send(str.encode('Server Connected'))
     while True:
         data = connection.recv(2048)
-        reply = 'Server Says: ' + data
+        reply = 'Server: ' + data
         if not data:
             break
         connection.sendall(str.encode(reply))
