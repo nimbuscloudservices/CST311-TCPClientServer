@@ -19,6 +19,3 @@ while True:
     print(response)
 
 clientSocket.close()
-
-
-
