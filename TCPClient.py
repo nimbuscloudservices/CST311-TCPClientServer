@@ -1,14 +1,24 @@
 from socket import *
-# In your command prompt, type in hostname and press enter.
-# What comes up is your computer's hostname
-serverName = 'put your hostname here'
+
+
+serverName = '10.0.0.3'
 serverPort = 12000
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
-clientSocket.connect((serverName,serverPort))
-sentence = input('Input lowercase sentence:')
-clientSocket.send(sentence.encode())
-modifiedSentence = clientSocket.recv(1024)
+print('Waiting for connection')
+try:
+    clientSocket.connect((serverName,serverPort))
+except socket.error as e:
+    print(str(e))
 
-print ('From Server:', modifiedSentence.decode())
+
+while True:
+    user_input = input('Say Something: ')
+    clientSocket.send(user_input.encode())
+    response = clientSocket.recv(1024)
+    print(response)
+
 clientSocket.close()
+
+
+

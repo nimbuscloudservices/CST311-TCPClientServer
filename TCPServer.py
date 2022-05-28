@@ -1,20 +1,34 @@
-#TCPCapitalizationServer.py
-from socket import *
+import socket
+import os
+from _thread import *
+
+ServerSocket = socket.socket()
+serverName = '10.0.0.1'
 serverPort = 12000
+ThreadCount = 0
+try:
+    ServerSocket.bind((serverName, serverPort))
+except socket.error as e:
+    print(str(e))
 
-# Create a TCP socket
-# Notice the use of SOCK_STREAM for TCP
-packets serverSocket = socket(AF_INET,SOCK_STREAM)
+print('Waitiing for a Connection..')
+ServerSocket.listen(2)
 
-# Assign IP address and port number to socket
-serverSocket.bind(('',serverPort))
-serverSocket.listen(1) 
-print('The server is ready to receive')
+
+def threaded_client(connection):
+    connection.send(str.encode('Server Connected'))
+    while True:
+        data = connection.recv(2048)
+        reply = 'Server Says: ' + data
+        if not data:
+            break
+        connection.sendall(str.encode(reply))
+    connection.close()
 
 while True:
-     connectionSocket, addr = serverSocket.accept()
-     sentence = connectionSocket.recv(1024).decode()
-     capitalizedSentence = sentence.upper()
-     connectionSocket.send(capitalizedSentence.encode())
-
-connectionSocket.close()
+    client, address = ServerSocket.accept()
+    print('Connected to: ' + address[0] + ':' + str(address[1]))
+    start_new_thread(threaded_client, (client, ))
+    ThreadCount += 1
+    print('Thread Number: ' + str(ThreadCount))
+ServerSocket.close()
