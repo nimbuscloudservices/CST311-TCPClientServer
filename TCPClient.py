@@ -2,10 +2,9 @@ from socket import *
 
 
 serverName = '10.0.0.3'
-serverPort = 12000
+serverPort = 12013
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
-print('Waiting for connection')
 try:
     clientSocket.connect((serverName,serverPort))
 except socket.error as e:
@@ -13,7 +12,7 @@ except socket.error as e:
 
 
 while True:
-    user_input = input('Say Something: ')
+    user_input = input('Input: ')
     clientSocket.send(user_input.encode())
     response = clientSocket.recv(1024)
     print(response)
