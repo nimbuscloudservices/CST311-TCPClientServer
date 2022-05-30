@@ -18,7 +18,7 @@ except socket.error as e:
 
 ServerSocket.listen(2)
 
-def threaded_client(client, address, name):
+def threaded_client(client, name):
     global count
 
     while True:
@@ -32,14 +32,14 @@ def threaded_client(client, address, name):
       break
 
     print('Client ' + name + ' sent message ' + str(count) + ': ' + reply)
-    clientMessage(name, reply, count)
+    client_message(name, reply, count)
 
     while True:
       if count == 2:
         client.send(message.encode())
         break
 
-def clientMessage(name, reply, count):
+def client_message(name, reply, count):
     global message
 
     if count == 1:
@@ -53,10 +53,10 @@ while True:
 
     if ThreadCount == 1:
       print('Accepted first connection, calling it client ' + chr(ThreadCount+87))
-      t1 = threading.Thread(target=threaded_client, args=(client, address, chr(ThreadCount+87)))
+      t1 = threading.Thread(target=threaded_client, args=(client, chr(ThreadCount+87)))
     elif ThreadCount == 2:
       print('Accepted second connection, calling it client ' + chr(ThreadCount+87) + '\n')
-      t2 = threading.Thread(target=threaded_client, args=(client, address, chr(ThreadCount+87)))
+      t2 = threading.Thread(target=threaded_client, args=(client, chr(ThreadCount+87)))
       print('\n')
       print('Waiting to receive messages from client X and client Y....\n')
       t1.start()
