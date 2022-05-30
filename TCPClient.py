@@ -12,9 +12,12 @@ except socket.error as e:
 
 
 while True:
-    user_input = input('Input: ')
+    message = clientSocket.recv(1024)
+    print(message.decode())
+    user_input = input('Enter message to send to server: ')
     clientSocket.send(user_input.encode())
     response = clientSocket.recv(1024)
-    print(response)
+    print(response.decode())
+    break
 
 clientSocket.close()
