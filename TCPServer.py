@@ -1,73 +1,130 @@
 import socket
-import time
-import os
 import threading
 
-ServerSocket = socket.socket()
-serverName = '10.0.0.3'
-serverPort = 12013
-ThreadCount = 0
-count = 0
-message = 'From Server: '
+SERVER = socket.gethostbyname(socket.gethostname())
+PORT = 12013
+MAX_CLIENTS = 2  # maximum clients supported
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+CLIENT_NAMES = ["X", "Y"]  # Names for clients
+ORDER = {1: "first", 2: "second"}  # ordering
+connections = []  # holds active connections
+received_msgs = []  # holds messages from clients
+client_threads = []  # holds active threads
 
-print('Waiting for 2 Connections..\n')
-try:
-    ServerSocket.bind((serverName, serverPort))
-except socket.error as e:
-    print(str(e))
 
-ServerSocket.listen(2)
+def connection_handler():
+    """
+    Handles connection to clients and assigning order
+    """
+    server.listen(2)
+    print(f"[LISTENING] Server is listening on {SERVER}")
 
-def threaded_client(client, address, name):
-    global count
+    print("[SERVER] The server is waiting to receive two connections...")
+    while len(connections) < MAX_CLIENTS:
+        conn, addr = server.accept()
+        print(f"[NEW CONNECTION] {addr} connected.")
+        connections.append(conn)
+        index = connections.index(conn)
+        print(f"[SERVER] Accepted {ORDER[index + 1]} connection, calling it {CLIENT_NAMES[index]}")
 
+
+def send_confirmation_msg(client_list):
+    """
+    Sends confirmation to connected clients in client_list
+    :param client_list: list of active clients
+    """
+    for client in client_list:
+        index = client_list.index(client)
+        msg = "[SERVER] From Server: Client {} connected.".format(CLIENT_NAMES[index])
+        client.send(msg.encode())
+
+
+def receive_messages(connection):
+    """
+    used to receive messages from clients, decode, and format
+    :param connection:
+    """
+    client_name_pos = connections.index(connection)
+    # infinite loop to accept and decode messages
     while True:
-      if ThreadCount == 2:
-        client.send(str.encode('From Server: Client ' + name + ' connected'))
-        break
+        msg = connection.recv(2048).decode()
+        # exit loop if empty string received due to closed connection
+        if not msg:
+            break
+        # store and print confirmation of client message
+        else:
+            # received messages are store in array as tuple pairs of client name and message
+            received_msgs.append((client_name_pos, msg))
+            index = received_msgs.index((client_name_pos, msg))
+            print("[Client {0}] sent message {1}: {2}".format(CLIENT_NAMES[client_name_pos],
+                                                              index + 1,
+                                                              msg))
 
-    while True:
-      reply = client.recv(2048).decode()
-      count += 1
-      break
 
-    print('Client ' + name + ' sent message ' + str(count) + ': ' + reply)
-    clientMessage(name, reply, count)
+def start_client_communications():
+    """
+    Starts threads for clients in connection array to receive messages from them.
+    """
+    for client in connections:
+        thread = threading.Thread(target=receive_messages, args=(client,))
+        client_threads.append(thread)
+        thread.start()
 
-    while True:
-      if count == 2:
-        client.send(message.encode())
-        break
 
-def clientMessage(name, reply, count):
-    global message
+def client_feedback():
+    """
+    formats messages from both clients wile noting the order, content and names of senders
+    then send received messages this message to all clients
+    """
+    # unpacking tuples
+    first_client, first_msg = received_msgs[0]
+    second_client, second_msg = received_msgs[1]
+    msg = "[SERVER] {0}: {1} received before {2}: {3}".format(
+        CLIENT_NAMES[first_client],
+        first_msg,
+        CLIENT_NAMES[second_client],
+        second_msg
+    )
+    for client in connections:
+        client.send(msg.encode())
 
-    if count == 1:
-      message += name + ': ' + reply
-    if count == 2:
-      message += ' received before ' + name + ': ' + reply
 
-while True:
-    client, address = ServerSocket.accept()
-    ThreadCount += 1
+def end_connections():
+    """
+    Joins threads and terminates connections
+    """
+    for client in connections:
+        client_threads[connections.index(client)].join()
+        client.close()
 
-    if ThreadCount == 1:
-      print('Accepted first connection, calling it client ' + chr(ThreadCount+87))
-      t1 = threading.Thread(target=threaded_client, args=(client, address, chr(ThreadCount+87)))
-    elif ThreadCount == 2:
-      print('Accepted second connection, calling it client ' + chr(ThreadCount+87) + '\n')
-      t2 = threading.Thread(target=threaded_client, args=(client, address, chr(ThreadCount+87)))
-      print('\n')
-      print('Waiting to receive messages from client X and client Y....\n')
-      t1.start()
-      t2.start()
-      t1.join()
-      t2.join()
-      break
 
-print('\n')
-print('Waiting a bit for clients to close their connection')
-time.sleep(2)
-print('Done')
+def launch_server():
+    """
+    launches the server
+    """
+    print("[STARTING] Server is starting...")
+    try:
+        server.bind((SERVER, PORT))
+    except socket.error as e:
+        print(str(e))
+    # starts accepting client connections
+    connection_handler()
+    # sends confirmations to both clients with their names
+    send_confirmation_msg(connections)
 
-ServerSocket.close()
+    print("[SERVER] Waiting to receive messages from client X and client Y...")
+
+    start_client_communications()
+    while len(received_msgs) < 2:
+        pass
+    # tells clients whose message was received first
+    client_feedback()
+    print("[SERVER] Waiting for clients to close connections...")
+    # terminates
+    end_connections()
+
+    print("[SERVER] Connections successfully terminated.")
+
+
+if __name__ == "__main__":
+    launch_server()
