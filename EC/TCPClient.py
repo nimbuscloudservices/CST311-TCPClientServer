@@ -5,9 +5,9 @@ END_CONVO_KEYWORD = "Bye"
 SERVER = '10.0.0.3'
 PORT = 12013
 ADDR = (SERVER, PORT)
-end_chat = False
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(ADDR)
+print("Connected to server {0}:{1}".format(SERVER,PORT))
 
 
 def recv_msg():
@@ -15,7 +15,7 @@ def recv_msg():
     receives messages from server until END_CONVO_KEYWORD
     :return:
     """
-    global end_chat
+    print("[Client] Ready to receive messages.")
     while True:
         try:
             msg = client_socket.recv(1024).decode()
@@ -35,6 +35,7 @@ def send_msg():
     Sends message to server
     :return:
     """
+    print("[Client] Ready to send messages")
     while True:
         msg = input("You: ")
         client_socket.send(msg.encode())
