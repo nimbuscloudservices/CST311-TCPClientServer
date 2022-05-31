@@ -7,7 +7,7 @@ Date: May 31, 2022
 The objective of this program is to create a server which can send and receive messages from two clients.
 The server assigns clients names X and Y based on connection order.
 Once clients send messages the server will broadcast a message to both clients announcing whose msg arrive first
-
+"""
 SERVER = '10.0.0.3'
 PORT = 12013
 MAX_CLIENTS = 2  # maximum clients supported
