@@ -1,13 +1,17 @@
-"""
-Team Programming Assignment 3
-
-
-"""
-
 import socket
 import threading
+"""
+Team Programming Assignment # 3
+Team 5 -  Layla, Saul, and Yavik
+Date: May 31, 2022
+The objective of this program is to create a server which can send and receive messages from two clients.
+The server assigns clients names X and Y based on connection order.
+Once clients send messages the server will broadcast a message to both clients announcing whose msg arrive first
 
-SERVER = socket.gethostbyname(socket.gethostname())
+In order for this to work in mininet, please run the server on H3 or edit the ip SERVER field to the hosts IP
+"""
+
+SERVER = "10.0.0.3"
 PORT = 12013
 MAX_CLIENTS = 2  # maximum clients supported
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,8 +36,9 @@ def connection_handler():
         connections.append(conn)
         index = connections.index(conn)
         print("[SERVER] Accepted {0} connection, calling it {1}".format(
-            ORDER[index+1],
+            ORDER[index + 1],
             CLIENT_NAMES[index]))
+
 
 def send_confirmation_msg(client_list):
     """
