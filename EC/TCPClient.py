@@ -6,15 +6,12 @@ SERVER = '10.0.0.3'
 PORT = 12013
 ADDR = (SERVER, PORT)
 end_chat = False
-print("Starting server...")
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
     client_socket.connect(ADDR)
 except socket.error as e:
     print(str(e))
-
-print("Successfully connected to server.")
 
 
 def recv_msg():

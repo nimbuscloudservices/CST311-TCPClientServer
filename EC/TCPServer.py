@@ -48,7 +48,7 @@ def send_confirmation_msg(client_list):
     pass
 
 
-def exchange_messages(connection):
+def recv_msg(connection):
     """
     used to receive messages from clients, decode, and format
     :param connection:
@@ -57,7 +57,7 @@ def exchange_messages(connection):
     client_name = connections.index(connection)
     # infinite loop to accept and decode messages
     while not end_chat:
-        msg = connection.recv(2048).decode()
+        msg = connection.recv(1024).decode()
         #  Listens for end_convo_keyword
         if msg:
             broadcast(msg, CLIENT_NAMES[client_name])
@@ -77,7 +77,7 @@ def start_client_communications():
     Starts threads for clients in connection array to receive messages from them.
     """
     for client in connections:
-        thread = threading.Thread(target=exchange_messages, args=(client,))
+        thread = threading.Thread(target=recv_msg, args=(client,))
         client_threads.append(thread)
         thread.start()
 
