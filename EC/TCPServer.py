@@ -17,6 +17,7 @@ END_CONVO_KEYWORD = "Bye"
 connections = []  # holds active connections
 received_msgs = []  # holds messages from clients
 client_threads = []  # holds active threads
+end_chat = False
 
 
 def connection_handler():
@@ -52,7 +53,7 @@ def recv_msg(connection):
     used to receive messages from clients, decode, and format
     :param connection:
     """
-    end_chat = False
+    global end_chat
     client_name = connections.index(connection)
     # infinite loop to accept and decode messages
     while not end_chat:

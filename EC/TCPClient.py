@@ -5,12 +5,9 @@ END_CONVO_KEYWORD = "Bye"
 SERVER = '10.0.0.3'
 PORT = 12013
 ADDR = (SERVER, PORT)
+end_chat = False
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-try:
-    client_socket.connect(ADDR)
-except socket.error as e:
-    print(str(e))
+client_socket.connect(ADDR)
 
 
 def recv_msg():
@@ -18,12 +15,12 @@ def recv_msg():
     receives messages from server until END_CONVO_KEYWORD
     :return:
     """
-    end_chat = False
-    while not end_chat:
+    global end_chat
+    while True:
         try:
             msg = client_socket.recv(1024).decode()
             if msg == END_CONVO_KEYWORD:
-                end_chat = True
+                break
             elif msg:
                 print(msg)
         except socket.error as e:
