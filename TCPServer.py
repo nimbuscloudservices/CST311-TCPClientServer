@@ -1,3 +1,9 @@
+"""
+Team Programming Assignment 3
+
+
+"""
+
 import socket
 import threading
 
@@ -17,16 +23,17 @@ def connection_handler():
     Handles connection to clients and assigning order
     """
     server.listen(2)
-    print(f"[LISTENING] Server is listening on {SERVER}")
+    print("[LISTENING] Server is listening on {}".format(SERVER))
 
     print("[SERVER] The server is waiting to receive two connections...")
     while len(connections) < MAX_CLIENTS:
         conn, addr = server.accept()
-        print(f"[NEW CONNECTION] {addr} connected.")
+        print("[NEW CONNECTION] {} connected.".format(addr))
         connections.append(conn)
         index = connections.index(conn)
-        print(f"[SERVER] Accepted {ORDER[index + 1]} connection, calling it {CLIENT_NAMES[index]}")
-
+        print("[SERVER] Accepted {0} connection, calling it {1}".format(
+            ORDER[index+1],
+            CLIENT_NAMES[index]))
 
 def send_confirmation_msg(client_list):
     """
