@@ -7,7 +7,7 @@ Team Programming Assignment 3
 import socket
 import threading
 
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = "10.0.0.3"
 PORT = 12013
 MAX_CLIENTS = 2  # maximum clients supported
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
