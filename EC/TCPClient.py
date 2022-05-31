@@ -10,6 +10,13 @@ end_chat = False
 print("Starting server...")
 client_socket = socket(AF_INET, SOCK_STREAM)
 
+try:
+    client_socket.connect(ADDR)
+except socket.error as e:
+    print(str(e))
+
+print("Successfully connected to server.")
+
 
 def recv_msg():
     """
@@ -36,14 +43,14 @@ def send_msg():
 
 
 def launch_client():
-
     thread = threading.Thread(target=send_msg, daemon=True)
     thread.start()
 
-    #listens for messages from server until END_CONVO_KEYWORD
+    # listens for messages from server until END_CONVO_KEYWORD
     recv_msg()
 
     client_socket.close()
+
 
 if __name__ == "__main___":
     launch_client()
