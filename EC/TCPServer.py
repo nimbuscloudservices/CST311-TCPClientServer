@@ -19,20 +19,21 @@ received_msgs = []  # holds messages from clients
 client_threads = []  # holds active threads
 end_chat = False
 
+
 def connection_handler():
     """
     Handles connection to clients and assigning order
     """
     server.listen(2)
-    print(f"[LISTENING] Server is listening on {SERVER}")
 
-    print("[SERVER] The server is waiting to receive two connections...")
+    print("The server is waiting to receive two connections...\n")
     while len(connections) < MAX_CLIENTS:
         conn, addr = server.accept()
-        print(f"[NEW CONNECTION] {addr} connected.")
         connections.append(conn)
         index = connections.index(conn)
-        print(f"[SERVER] Accepted {ORDER[index + 1]} connection, calling it {CLIENT_NAMES[index]}")
+        print("Accepted {0} connection, calling it {1}".format(ORDER[index + 1], CLIENT_NAMES[index]))
+
+    print("\n")
 
 
 def send_confirmation_msg(client_list):
@@ -42,10 +43,9 @@ def send_confirmation_msg(client_list):
     """
     for client in client_list:
         index = client_list.index(client)
-        msg = "[SERVER] From Server: Client {} connected.".format(CLIENT_NAMES[index])
+        msg = "From Server: Client {} connected.".format(CLIENT_NAMES[index])
         client.send(msg.encode())
     pass
-
 
 
 def exchange_messages(connection):
@@ -60,12 +60,12 @@ def exchange_messages(connection):
         msg = connection.recv(2048).decode()
         #  Listens for end_convo_keyword
         if msg:
-            say(msg, CLIENT_NAMES[client_name])
+            broadcast(msg, CLIENT_NAMES[client_name])
             if msg == END_CONVO_KEYWORD:
                 end_chat = True
 
 
-def say(msg, name="[SERVER]"):
+def broadcast(msg, name="[SERVER]"):
     mod_msg = "{0}: {1}".format(name, msg)
     print(mod_msg)
     for client in connections:
@@ -80,24 +80,6 @@ def start_client_communications():
         thread = threading.Thread(target=exchange_messages, args=(client,))
         client_threads.append(thread)
         thread.start()
-
-
-def client_feedback():
-    """
-    formats messages from both clients wile noting the order, content and names of senders
-    then send received messages this message to all clients
-    """
-    # unpacking tuples
-    first_client, first_msg = received_msgs[0]
-    second_client, second_msg = received_msgs[1]
-    msg = "[SERVER] {0}: {1} received before {2}: {3}".format(
-        CLIENT_NAMES[first_client],
-        first_msg,
-        CLIENT_NAMES[second_client],
-        second_msg
-    )
-    for client in connections:
-        client.send(msg.encode())
 
 
 def end_connections():
