@@ -1,11 +1,12 @@
-"""
-Team Programming Assignment 3
-
-
-"""
-
 import socket
 import threading
+"""
+Team Programming Assignment # 3
+Team 5 -  Layla, Saul, and Yavik
+Date: May 31, 2022
+The objective of this program is to create a server which can send and receive messages from two clients.
+The server assigns clients names X and Y based on connection order.
+Once clients send messages the server will broadcast a message to both clients announcing whose msg arrive first
 
 SERVER = '10.0.0.3'
 PORT = 12013
@@ -32,6 +33,7 @@ def connection_handler():
         print("Accepted {0} connection, calling it {1}".format(ORDER[index+1], CLIENT_NAMES                                                                                                                      [index]))
 
     print("\n")
+
 
 
 def send_confirmation_msg(client_list):
