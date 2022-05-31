@@ -1,7 +1,7 @@
 import socket
 import threading
 
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = '10.0.0.3'
 PORT = 12013
 MAX_CLIENTS = 2  # maximum clients supported
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,15 +17,15 @@ def connection_handler():
     Handles connection to clients and assigning order
     """
     server.listen(2)
-    print(f"[LISTENING] Server is listening on {SERVER}")
 
-    print("[SERVER] The server is waiting to receive two connections...")
+    print("The server is waiting to receive two connections...\n")
     while len(connections) < MAX_CLIENTS:
         conn, addr = server.accept()
-        print(f"[NEW CONNECTION] {addr} connected.")
         connections.append(conn)
         index = connections.index(conn)
-        print(f"[SERVER] Accepted {ORDER[index + 1]} connection, calling it {CLIENT_NAMES[index]}")
+        print("Accepted {0} connection, calling it {1}".format(ORDER[index+1], CLIENT_NAMES                                                                                                                      [index]))
+
+    print("\n")
 
 
 def send_confirmation_msg(client_list):
@@ -35,7 +35,7 @@ def send_confirmation_msg(client_list):
     """
     for client in client_list:
         index = client_list.index(client)
-        msg = "[SERVER] From Server: Client {} connected.".format(CLIENT_NAMES[index])
+        msg = "From Server: Client {} connected.".format(CLIENT_NAMES[index])
         client.send(msg.encode())
 
 
@@ -56,7 +56,7 @@ def receive_messages(connection):
             # received messages are store in array as tuple pairs of client name and message
             received_msgs.append((client_name_pos, msg))
             index = received_msgs.index((client_name_pos, msg))
-            print("[Client {0}] sent message {1}: {2}".format(CLIENT_NAMES[client_name_pos],
+            print("Client {0} sent message {1}: {2}".format(CLIENT_NAMES[client_name_pos],
                                                               index + 1,
                                                               msg))
 
@@ -79,7 +79,7 @@ def client_feedback():
     # unpacking tuples
     first_client, first_msg = received_msgs[0]
     second_client, second_msg = received_msgs[1]
-    msg = "[SERVER] {0}: {1} received before {2}: {3}".format(
+    msg = "From Server: {0}: {1} received before {2}: {3}".format(
         CLIENT_NAMES[first_client],
         first_msg,
         CLIENT_NAMES[second_client],
@@ -102,7 +102,6 @@ def launch_server():
     """
     launches the server
     """
-    print("[STARTING] Server is starting...")
     try:
         server.bind((SERVER, PORT))
     except socket.error as e:
@@ -112,18 +111,19 @@ def launch_server():
     # sends confirmations to both clients with their names
     send_confirmation_msg(connections)
 
-    print("[SERVER] Waiting to receive messages from client X and client Y...")
+    print("Waiting to receive messages from client X and client Y...\n")
 
     start_client_communications()
     while len(received_msgs) < 2:
         pass
     # tells clients whose message was received first
     client_feedback()
-    print("[SERVER] Waiting for clients to close connections...")
+    print("\n")
+    print("Waiting for clients to close connections...")
     # terminates
     end_connections()
 
-    print("[SERVER] Connections successfully terminated.")
+    print("Done")
 
 
 if __name__ == "__main__":
